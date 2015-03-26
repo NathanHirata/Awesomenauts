@@ -69,7 +69,7 @@ game.PlayerEntity = me.Entity.extend({
     },
     
     collideHandler: function(response){
-        if(response.b.type==='playerBaseEntity'){
+        if(response.b.type==='enemyBaseEntity'){
             var ydif = this.pos.y - response.b.pos.y;
             var xdif = this.pos.x - response.b.pos.x;
             
@@ -83,6 +83,7 @@ game.PlayerEntity = me.Entity.extend({
             }
             
             if(this.renderable.isCurrentAnimation("attack") && this.now-this.lastHit >= 400){
+                console.log("Hit");
             this.lastHit = this.now;
             response.b.loseHealth();
             }
@@ -166,7 +167,7 @@ game.enemyBaseEntity = me.Entity.extend({
 
     },
     
-    loseHealth:function(){
+    loseHealth: function(){
         this.health--;
     }
 
