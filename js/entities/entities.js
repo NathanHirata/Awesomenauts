@@ -10,7 +10,8 @@ game.PlayerEntity = me.Entity.extend({
                     return(new me.Rect(0, 0, 64, 64)).toPolygon();
                 }
             }]);
-
+        this.type = "PlayerEntity";
+        this.health = 20;
         this.body.setVelocity(5, 20);
         this.facing = "right";
         this.new = new Date().getTime();
@@ -24,6 +25,7 @@ game.PlayerEntity = me.Entity.extend({
 
         this.renderable.setCurrentAnimation("idle");
     },
+    
     update: function(delta) {
         this.now = new Date().getTime();
         if (me.input.isKeyPressed("right")) {
@@ -68,6 +70,10 @@ game.PlayerEntity = me.Entity.extend({
         return true;
     },
     
+    loseHealth: function(damage){
+        this.health = this.health - damage;
+    },
+    
     collideHandler: function(response){
         if(response.b.type==='enemyBaseEntity'){
             var ydif = this.pos.y - response.b.pos.y;
@@ -91,7 +97,7 @@ game.PlayerEntity = me.Entity.extend({
     }
 });
 
-game.playerBaseEntity = me.Entity.extend({
+game.PlayerBaseEntity = me.Entity.extend({
     init: function(x, y, settings) {
         this._super(me.Entity, 'init', [x, y, {
                 image: "tower",
@@ -107,8 +113,7 @@ game.playerBaseEntity = me.Entity.extend({
         this.health = 10;
         this.alwaysUpdate = true;
         this.body.onCollision = this.onCollision.bind(this);
-        console.log("init");
-        this.type = "playerBaseEntity";
+        this.type = "playerBase";
 
         this.renderable.addAnimation("idle", [0]);
         this.renderable.addAnimation("broken", [1]);
@@ -124,13 +129,18 @@ game.playerBaseEntity = me.Entity.extend({
         this._super(me.Entity, "update", [delta]);
         return true;
     },
+    
+    loseHealth: function(damage){
+        this.health = this.health - damage;
+    },
+    
     onCollision: function() {
 
     }
 
 });
 
-game.enemyBaseEntity = me.Entity.extend({
+game.EnemyBaseEntity = me.Entity.extend({
     init: function(x, y, settings) {
         this._super(me.Entity, 'init', [x, y, {
                 image: "tower",
@@ -185,10 +195,14 @@ game.EnemyCreep = me.Entity.extend({
                     return (new me.Rect(0,0,32,64)).toPolygon();
                 }
         }]);
+    
     this.health = 10;
     this.alwaysUpdate = true;
-    
-    this.setVelocity(3,20);
+    this.attacking = false;
+    this.lastHit = new Date().getTime();
+    this.lastAttacking = new Date().getTime();
+    this.now = new Date().getTime();
+    this.body.setVelocity(3,20);
     
     this.type = "EnemyCreep";
     
@@ -198,7 +212,63 @@ game.EnemyCreep = me.Entity.extend({
     
     },
     
-    update: function() {
+    update: function(delta) {
+        this.now = new Date().getTime();
         
+        
+        this.body.vel.x -= this.body.accel.x * me.timer.tick;
+        
+        me.collision.check(this, true, this.collideHandler.bind(this), true);
+        
+        this.body.update(delta);
+
+        this._super(me.Entity, "update", [delta]);
+        return true;
+    },
+    
+    collideHandler: function(response){
+        if(response.b.type==='playerBase'){
+            this.attacking=true;
+            this.lastAttacking=this.now;
+            this.body.vel.x = 0;
+            this.pos.x = this.pos.x + 1;
+            if((this.now-this.lastHit >= 1000)){
+                this.lastHit = this.now;
+                response.b.loseHealth(1);
+            }
+        }else if(response.b.type==='PlayerEntity'){
+            var xdif = this.pos.x - response.b.pos.x;
+            this.attacking=true;
+            if(xdif>0){
+            this.pos.x = this.pos.x + 1;
+            this.body.vel.x = 0;
+        }
+            if((this.now-this.lastHit >= 1000) && xdif>0){
+                this.lastHit = this.now;
+                response.b.loseHealth(1);
+            }
+        }
+    }
+        
+});
+
+game.GameManager = Object.extend({
+    init: function(x, y, settings){
+        this.now = new Date().getTime();
+        this.lastCreep = new Date().getTime();
+        
+        this.alwaysUpdate = true;
+    },
+    
+    update: function (){
+        this.now = new Date().getTime();
+        
+        if(Math.round(this.now/1000)%10 ===0 && (this.now - this.lastCreep >= 1000)){
+            this.lastCreep = this.now;
+            var creepe = me. pool.pull("EnemyCreep", 1000, 0, {});
+            me.game.world.addChild(creepe, 5);
+        }
+        
+        return true;
     }
 });
