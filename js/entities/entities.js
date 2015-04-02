@@ -11,7 +11,7 @@ game.PlayerEntity = me.Entity.extend({
                 }
             }]);
         this.type = "PlayerEntity";
-        this.health = 20;
+        this.health = 500;
         this.body.setVelocity(5, 20);
         this.facing = "right";
         this.new = new Date().getTime();
@@ -72,10 +72,11 @@ game.PlayerEntity = me.Entity.extend({
     
     loseHealth: function(damage){
         this.health = this.health - damage;
+        console.log(this.health);
     },
     
     collideHandler: function(response){
-        if(response.b.type==='enemyBaseEntity'){
+        if(response.b.type==='EnemyBaseEntity'){
             var ydif = this.pos.y - response.b.pos.y;
             var xdif = this.pos.x - response.b.pos.x;
             
@@ -84,12 +85,13 @@ game.PlayerEntity = me.Entity.extend({
                 this.body.vel.y = -1;
             }else if(xdif>-35 && this.facing==='right' && (xdif<0)) {
                 this.body.vel.x = 0;
+                this.pos.x = this.pos.x -1;
             }else if(xdif<60 && this.facing==='left' && xdif>0){
                 this.body.vel.x = 0;
+                this.pos.x = this.pos.x +1;
             }
             
             if(this.renderable.isCurrentAnimation("attack") && this.now-this.lastHit >= 400){
-                console.log("Hit");
             this.lastHit = this.now;
             response.b.loseHealth();
             }
@@ -157,7 +159,7 @@ game.EnemyBaseEntity = me.Entity.extend({
         this.alwaysUpdate = true;
         this.body.onCollision = this.onCollision.bind(this);
 
-    this.type = "enemyBaseEntity";
+    this.type = "EnemyBaseEntity";
 
         this.renderable.addAnimation("idle", [0]);
         this.renderable.addAnimation("broken", [1]);
@@ -212,7 +214,15 @@ game.EnemyCreep = me.Entity.extend({
     
     },
     
+    loseHealth: function(damage){
+        this.health = this.health - damage;
+    },
+    
     update: function(delta) {
+        if(this.health <=0){
+            me.game.world.removeChild(this);
+        }
+        
         this.now = new Date().getTime();
         
         
