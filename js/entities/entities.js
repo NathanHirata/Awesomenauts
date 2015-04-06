@@ -17,6 +17,7 @@ game.PlayerEntity = me.Entity.extend({
         this.new = new Date().getTime();
         this.lastHit = this.now;
         this.dead = false;
+        this.attack = game.data.playerAttack;
         this.lastAttack = new Date().getTime();
         me.game.viewport.follow(this.pos, me.game.viewport.AXIS.BOTH);
 
@@ -33,7 +34,7 @@ game.PlayerEntity = me.Entity.extend({
             this.dead = true;
             this.pos.x = 10;
             this.pos.y = 0;
-            this.health = game.data.playerHealth
+            this.health = game.data.playerHealth;
         }
         
         if (me.input.isKeyPressed("right")) {
@@ -124,6 +125,10 @@ game.PlayerEntity = me.Entity.extend({
                     (((xdif > 0) && this.facing === "left") || ((xdif < 0) && this.facing === "right"))
                     ) {
                 this.lastHit = this.now;
+                if(response.b.health <= game.data.playerAttack){
+                    game.data.gold += 1;
+                }
+                
                 response.b.loseHealth(game.data.playerAttack);
             }
         }
@@ -293,13 +298,24 @@ game.GameManager = Object.extend({
     init: function(x, y, settings) {
         this.now = new Date().getTime();
         this.lastCreep = new Date().getTime();
-
+        this.paused = false;
         this.alwaysUpdate = true;
     },
     update: function() {
         this.now = new Date().getTime();
+        
+        if(game.data.player.dead){
+            me.game.world.removeChild(game.data.player);
+            me.state.current().resetPlayer(10, 0);
+        }
+        
+        if (Math.round(this.now / 1000) %20 === 0 && (this.now - this.lastCreep >= 1000)) {
+            this.lastCreep = this.now;
+            var creepe = me.pool.pull("EnemyCreep", 1000, 0, {});
+            me.game.world.addChild(creepe, 5);
+        }
 
-        if (Math.round(this.now / 1000) % 10 === 0 && (this.now - this.lastCreep >= 1000)) {
+        if (Math.round(this.now / 1000) %10 === 0 && (this.now - this.lastCreep >= 1000)) {
             this.lastCreep = this.now;
             var creepe = me.pool.pull("EnemyCreep", 1000, 0, {});
             me.game.world.addChild(creepe, 5);
