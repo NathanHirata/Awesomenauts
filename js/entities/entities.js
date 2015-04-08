@@ -1,6 +1,7 @@
 game.PlayerEntity = me.Entity.extend({
+    
     init: function(x, y, settings) {
-        this.setSuper();
+        this.setSuper(x, y);
         this.setPlayerTimers();
         this.setAttributes();
         this.type = "PlayerEntity";
@@ -12,7 +13,7 @@ game.PlayerEntity = me.Entity.extend({
         this.renderable.setCurrentAnimation("idle");
     },
     
-    setSuper: function() {
+    setSuper: function(x, y) {
         this._super(me.Entity, 'init', [x, y, {
                 image: "player",
                 width: 64,
@@ -26,7 +27,7 @@ game.PlayerEntity = me.Entity.extend({
     },
     
     setPlayerTimers: function() {
-        this.new = new Date().getTime();
+        this.now = new Date().getTime();
         this.lastHit = this.now;
         this.lastAttack = new Date().getTime();
     },
@@ -51,21 +52,15 @@ game.PlayerEntity = me.Entity.extend({
     
     update: function(delta) {
         this.now = new Date().getTime();
-
-        this.dead = checkIfDead();
-        
+        this.dead = this.checkIfDead();
         this.checkKeyPressesAndMove();
-        
         this.setAnimation();
-
         me.collision.check(this, true, this.collideHandler.bind(this), true);
         this.body.update(delta);
-        
-        
-
         this._super(me.Entity, "update", [delta]);
         return true;
     },
+    
     checkIfDead: function() {
         if (this.health <= 0) {
             return true;
@@ -73,45 +68,45 @@ game.PlayerEntity = me.Entity.extend({
         return true;
     },
     
-    checkKeyPressesAndMove: function(){
-    if (me.input.isKeyPressed("right")) {
-        this.MoveRight();
-        }else if (me.input.isKeyPressed("left")) {
+    checkKeyPressesAndMove: function() {
+        if (me.input.isKeyPressed("right")) {
+            this.MoveRight();
+        } else if (me.input.isKeyPressed("left")) {
             this.MoveLeft();
-        }else {
+        } else {
             this.body.vel.x = 0;
         }
-        
+
         if (me.input.isKeyPressed("jump") && !this.body.jumping && !this.body.falling) {
             this.jump();
         }
-        
+
         this.attacking = me.input.isKeyPressed("attack");
     },
     
-    MoveRight: function(){
+    MoveRight: function() {
         this.facing = "right";
         this.body.vel.x += this.body.accel.x * me.timer.tick;
         this.flipX(true);
     },
     
-    MoveLeft: function(){
-            this.facing = "left";
-            this.body.vel.x -= this.body.accel.x * me.timer.tick;
-            this.flipX(false);
+    MoveLeft: function() {
+        this.facing = "left";
+        this.body.vel.x -= this.body.accel.x * me.timer.tick;
+        this.flipX(false);
     },
     
-    jump: function(){
+    jump: function() {
         this.body.jumping = true;
         this.body.vel.y -= this.body.accel.y * me.timer.tick;
     },
     
-    setAnimation: function(){
-      if(this.attacking) {
+    setAnimation: function() {
+        if (this.attacking) {
             if (!this.renderable.isCurrentAnimation("attack")) {
 
                 this.renderable.setCurrentAnimation("attack", "idle");
-                
+
                 this.renderable.setAnimationFrame();
             }
         }
@@ -123,63 +118,88 @@ game.PlayerEntity = me.Entity.extend({
 
         } else if (!this.renderable.isCurrentAnimation("attack")) {
             this.renderable.setCurrentAnimation("idle");
-        }  
+        }
     },
     
     loseHealth: function(damage) {
         this.health = this.health - damage;
-        console.log(this.health);
     },
     
     collideHandler: function(response) {
         if (response.b.type === 'EnemyBaseEntity') {
-            var ydif = this.pos.y - response.b.pos.y;
-            var xdif = this.pos.x - response.b.pos.x;
 
-            if (ydif < -40 && xdif < 70 && xdif > -35) {
-                this.body.falling = false;
-                this.body.vel.y = -1;
-            } else if (xdif > -35 && this.facing === 'right' && (xdif < 0)) {
-                this.body.vel.x = 0;
-                this.pos.x = this.pos.x - 1;
-            } else if (xdif < 60 && this.facing === 'left' && xdif > 0) {
-                this.body.vel.x = 0;
-                this.pos.x = this.pos.x + 1;
-            }
-
+            this.collideWithEnemyBase(response);
+console.log("check");
             if (this.renderable.isCurrentAnimation("attack") && this.now - this.lastHit >= game.data.playerAttackTimer) {
+                console.log("check");
                 this.lastHit = this.now;
                 response.b.loseHealth(game.data.playerAttack);
             }
         } else if (response.b.type === 'EnemyCreep') {
-            var xdif = this.pos.x - response.b.pos.x;
-            var ydif = this.pos.y - response.b.pos.y;
-
-            if (xdif > 0) {
-                this.pos.x = this.pos.x + 1;
-                if (this.facing === "left") {
-                    this.body.vel.x = 0;
-                }
-            } else {
-                if (this.facing === "right") {
-                    this.body.vel.x = 0;
-                }
-                this.pos.x = this.pos.x - 1;
-            }
-
-            if (this.renderable.isCurrentAnimation("attack") && this.now - this.lastHit >= game.data.playerAttackTimer
-                    && (Math.abs(ydif) <= 40) &&
-                    (((xdif > 0) && this.facing === "left") || ((xdif < 0) && this.facing === "right"))
-                    ) {
-                this.lastHit = this.now;
-                if (response.b.health <= game.data.playerAttack) {
-                    game.data.gold += 1;
-                }
-
-                response.b.loseHealth(game.data.playerAttack);
-            }
+            this.collideWithEnemyCreep(response);
         }
+    },
+    
+    collideWithEnemyBase: function(response) {
+        var ydif = this.pos.y - response.b.pos.y;
+        var xdif = this.pos.x - response.b.pos.x;
+
+        if (ydif < -40 && xdif < 70 && xdif > -35) {
+            this.body.falling = false;
+            this.body.vel.y = -1;
+        } else if (xdif > -35 && this.facing === 'right' && (xdif < 0)) {
+            this.body.vel.x = 0;
+            this.pos.x = this.pos.x - 1;
+        } else if (xdif < 60 && this.facing === 'left' && xdif > 0) {
+            this.body.vel.x = 0;
+            this.pos.x = this.pos.x + 1;
+        }
+    },
+    
+    collideWithEnemyCreep: function(response) {
+        var xdif = this.pos.x - response.b.pos.x;
+        var ydif = this.pos.y - response.b.pos.y;
+
+        this.stopMovement(xdif);
+
+        if (this.checkAttack(xdif, ydif)) {
+            this.hitCreep(response);
+        }
+        ;
+    },
+    
+    stopMovement: function(xdif) {
+        if (xdif > 0) {
+            this.pos.x = this.pos.x + 1;
+            if (this.facing === "left") {
+                this.body.vel.x = 0;
+            }
+        } else {
+            if (this.facing === "right") {
+                this.body.vel.x = 0;
+            }
+            this.pos.x = this.pos.x - 1;
+        }
+    },
+    
+    checkAttack: function(xdif, ydif) {
+        if (this.renderable.isCurrentAnimation("attack") && this.now - this.lastHit >= game.data.playerAttackTimer
+                && (Math.abs(ydif) <= 40) &&
+                (((xdif > 0) && this.facing === "left") || ((xdif < 0) && this.facing === "right"))
+                ) {
+            this.lastHit = this.now;
+            return true;
+        }
+        return false;
+    },
+    
+    hitCreep: function(response) {
+        if (response.b.health <= game.data.playerAttack) {
+            game.data.gold += 1;
+        }
+        response.b.loseHealth(game.data.playerAttack);
     }
+    
 });
 
 
