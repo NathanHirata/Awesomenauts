@@ -7,22 +7,24 @@ data: {
 score: 0,
         enemyBaseHealth: 10,
         playerBaseHealth: 10,
-        enemyCreepHealth: 10,
-        playerHealth: 10,
+        enemyCreepHealth: 2,
+        playerHealth: 4,
         enemyCreepAttack: 1,
         playerAttack: 1,
         playerAttackTimer: 1000,
         enemyCreepAttackTimer: 1000,
         playerMoveSpeed: 5,
         creepMoveSpeed: 5,
-        gameManager: "",
+        gameTimerManager: "",
+        heroDeathManager: "",
         player: "",
         exp: 0,
         gold: 0,
         exp1: 0,
         exp2: 0,
         exp3: 0,
-        exp4: 0
+        exp4: 0,
+        win: ""
 },
         // Run on page load.
         "onload": function() {
@@ -54,7 +56,9 @@ score: 0,
                 me.pool.register("enemyBase", game.EnemyBaseEntity);
                 me.pool.register("playerBase", game.PlayerBaseEntity);
                 me.pool.register("EnemyCreep", game.EnemyCreep);
-                me.pool.register("GameManager", game.GameManager);
+                me.pool.register("GameTimerManager", game.GameTimerManager);
+                me.pool.register("HeroDeathManager", game.HeroDeathManager);
+                me.pool.register("ExperienceManager", game.ExperienceManager);
                 me.state.set(me.state.MENU, new game.TitleScreen());
                 me.state.set(me.state.PLAY, new game.PlayScreen());
                 // Start the game.
