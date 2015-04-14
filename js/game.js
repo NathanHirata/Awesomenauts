@@ -5,16 +5,16 @@ var game = {
 data: {
 // score
 score: 0,
-        enemyBaseHealth: 10,
-        playerBaseHealth: 10,
-        enemyCreepHealth: 2,
-        playerHealth: 4,
+        enemyBaseHealth: 20,
+        playerBaseHealth: 20,
+        enemyCreepHealth: 1000000,
+        playerHealth: 50,
         enemyCreepAttack: 1,
-        playerAttack: 1,
-        playerAttackTimer: 1000,
+        playerAttack: 10,
+        playerAttackTimer: 1,
         enemyCreepAttackTimer: 1000,
         playerMoveSpeed: 5,
-        creepMoveSpeed: 5,
+        creepMoveSpeed: 2,
         gameTimerManager: "",
         heroDeathManager: "",
         player: "",
@@ -40,7 +40,8 @@ score: 0,
         me.plugin.register.defer(this, debugPanel, "debug");
         });
         }
-
+        
+        me.save.add({exp: 0, exp1: 0, exp2: 0, exp3: 0, exp4: 0});
         // Initialize the audio.
         me.audio.init("mp3,ogg");
                 // Set a callback to run when loading is complete.

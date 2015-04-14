@@ -8,6 +8,10 @@ game.GameTimerManager = Object.extend({
     
     update: function() {
         this.now = new Date().getTime();
+        
+        if(game.data.player.dead){
+            me.state.current().resetPlayer(10, 0);
+        }
         this.goldTimerCheck();
         this.creepTimerCheck();
 
@@ -36,6 +40,7 @@ game.HeroDeathManager = Object.extend({
     
     update: function(){
         if(game.data.player.dead){
+            //console.log("asdass")
             me.game.world.removeChild(game.data.player);
             me.state.current().resetPlayer(10, 0);
         }
@@ -45,17 +50,29 @@ game.HeroDeathManager = Object.extend({
 game.ExperienceManager = Object.extend({
     init: function(x, y, settings){
         this.alwaysUpdate = true;
+        this.gameOver = false;
     },
     
     update: function(){
-        if(game.data.win === true){
-            game.data.exp += 10;
-        }else if(game.data.win === false){
-            game.data.exp += 1;
+        if(game.data.win === true  &&  !this.gameOver){
+            this.gameOver(true);
+        }else if(game.data.win === false  &&  !this.gameOver){
+            this.gameOver(false);
         }
         
         return true;
+    },
+    
+    gameOver: function(win){
+        if(win){
+            game.data.exp += 10;
+        }else{
+            game.data.exp += 1;
+        }
+        this.gameOver = true;
+        me.save.exp = game.data.exp;
     }
+    
 });
 
 

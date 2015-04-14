@@ -65,7 +65,7 @@ game.PlayerEntity = me.Entity.extend({
         if (this.health <= 0) {
             return true;
         }
-        return true;
+        return false;
     },
     
     checkKeyPressesAndMove: function() {
@@ -80,7 +80,7 @@ game.PlayerEntity = me.Entity.extend({
         if (me.input.isKeyPressed("jump") && !this.body.jumping && !this.body.falling) {
             this.jump();
         }
-
+        
         this.attacking = me.input.isKeyPressed("attack");
     },
     
@@ -122,6 +122,7 @@ game.PlayerEntity = me.Entity.extend({
     },
     
     loseHealth: function(damage) {
+        console.log(this.health);
         this.health = this.health - damage;
     },
     
@@ -129,7 +130,7 @@ game.PlayerEntity = me.Entity.extend({
         if (response.b.type === 'EnemyBaseEntity') {
 
             this.collideWithEnemyBase(response);
-console.log("check");
+            console.log("check");
             if (this.renderable.isCurrentAnimation("attack") && this.now - this.lastHit >= game.data.playerAttackTimer) {
                 console.log("check");
                 this.lastHit = this.now;
