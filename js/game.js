@@ -26,7 +26,8 @@ score: 0,
         exp4: 0,
         win: "",
         pausePos: "",
-        buyScreen: ""
+        buyScreen: "",
+        buytext: ""
 },
         // Run on page load.
         "onload": function() {
