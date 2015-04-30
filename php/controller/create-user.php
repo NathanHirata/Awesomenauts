@@ -1,13 +1,12 @@
 <?php
-
 require_once (__DIR__ . "/../model/config.php");
 
 $array = array(
- 'exp' => '',
- 'exp1' => '',
- 'exp2' => '',
- 'exp3' => '',
- 'exp4' => '',
+    'exp' => '',
+    'exp1' => '',
+    'exp2' => '',
+    'exp3' => '',
+    'exp4' => '',
 );
 
 $username = filter_input(INPUT_POST, "username", FILTER_SANITIZE_STRING);
@@ -24,7 +23,7 @@ $query = $_SESSION["connection"]->query("INSERT INTO users SET "
         . "username = '$username', "
         . "password = '$hashedPassword', "
         . "salt = '$salt', "
-        .  "exp = 0, "
+        . "exp = 0, "
         . "exp1 = 0, "
         . "exp2 = 0, "
         . "exp3 = 0, "
@@ -34,9 +33,18 @@ $_SESSION["name"] = $username;
 
 
 if ($query) {
-    echo "succesfully created user: $username";
+    echo "true";
 }
-?>
+?>0
 
-<br /><button type="button" ><a href="index.php" >HOME</a></button>
-<br /><button type="button" ><a href="login.php" >LOGIN</a></button>
+Edit Edit
+ Copy Copy
+ Delete Delete
+22
+bob
+$5$rounds = 5000982$thkzeCFEiNLmlEzPRqKn.SXiYZT3ji...
+$5$rounds = 500098273056155429f36715655.45968676$
+0
+0
+0
+0

@@ -16,4 +16,3 @@ $query = $_SESSION["connection"]->query("CREATE TABLE users ("
         . "PRIMARY KEY (id))");
 
 
-    

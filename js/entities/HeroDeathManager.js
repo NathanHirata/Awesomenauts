@@ -3,8 +3,9 @@ game.HeroDeathManager = Object.extend({
         this.alwaysUpdate = true;
     },
     update: function() {
+        //checks if the player is dead
         if (game.data.player.dead) {
-            //console.log("asdass")
+            //removes the player and then spawns at the given coordinates
             me.game.world.removeChild(game.data.player);
             me.state.current().resetPlayer(10, 0);
         }

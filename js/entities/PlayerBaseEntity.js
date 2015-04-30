@@ -1,6 +1,7 @@
 game.PlayerBaseEntity = me.Entity.extend({
     init: function(x, y, settings) {
         this._super(me.Entity, 'init', [x, y, {
+                //player tower settings
                 image: "tower",
                 width: 100,
                 height: 100,
@@ -10,7 +11,9 @@ game.PlayerBaseEntity = me.Entity.extend({
                     return(new me.Rect(0, 0, 100, 70)).toPolygon();
                 }
             }]);
+        //this tells the game that the tower is not broken yet
         this.broken = false;
+        //this is the towers health
         this.health = game.data.playerBaseHealth;
         this.alwaysUpdate = true;
         this.body.onCollision = this.onCollision.bind(this);

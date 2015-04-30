@@ -1,5 +1,4 @@
 game.PlayerEntity = me.Entity.extend({
-    
     init: function(x, y, settings) {
         this.setSuper(x, y);
         this.setPlayerTimers();
@@ -12,7 +11,6 @@ game.PlayerEntity = me.Entity.extend({
 
         this.renderable.setCurrentAnimation("idle");
     },
-    
     setSuper: function(x, y) {
         this._super(me.Entity, 'init', [x, y, {
                 image: "player",
@@ -25,31 +23,26 @@ game.PlayerEntity = me.Entity.extend({
                 }
             }]);
     },
-    
     setPlayerTimers: function() {
         this.now = new Date().getTime();
         this.lastHit = this.now;
         this.lastAttack = new Date().getTime();
     },
-    
     setAttributes: function() {
         this.health = game.data.playerHealth;
         this.body.setVelocity(game.data.playerMoveSpeed, 20);
         this.attack = game.data.playerAttack;
     },
-    
     setFlags: function() {
         this.facing = "right";
         this.dead = false;
         this.attacking = false;
     },
-    
     addAnimation: function() {
         this.renderable.addAnimation("idle", [78]);
         this.renderable.addAnimation("walk", [117, 118, 119, 120, 121, 122, 123, 124, 125], 80);
         this.renderable.addAnimation("attack", [65, 66, 67, 68, 69, 70, 71, 72], 80);
     },
-    
     update: function(delta) {
         this.now = new Date().getTime();
         this.dead = this.checkIfDead();
@@ -60,14 +53,12 @@ game.PlayerEntity = me.Entity.extend({
         this._super(me.Entity, "update", [delta]);
         return true;
     },
-    
     checkIfDead: function() {
         if (this.health <= 0) {
             return true;
         }
         return false;
     },
-    
     checkKeyPressesAndMove: function() {
         if (me.input.isKeyPressed("right")) {
             this.MoveRight();
@@ -80,27 +71,23 @@ game.PlayerEntity = me.Entity.extend({
         if (me.input.isKeyPressed("jump") && !this.body.jumping && !this.body.falling) {
             this.jump();
         }
-        
+
         this.attacking = me.input.isKeyPressed("attack");
     },
-    
     MoveRight: function() {
         this.facing = "right";
         this.body.vel.x += this.body.accel.x * me.timer.tick;
         this.flipX(true);
     },
-    
     MoveLeft: function() {
         this.facing = "left";
         this.body.vel.x -= this.body.accel.x * me.timer.tick;
         this.flipX(false);
     },
-    
     jump: function() {
         this.body.jumping = true;
         this.body.vel.y -= this.body.accel.y * me.timer.tick;
     },
-    
     setAnimation: function() {
         if (this.attacking) {
             if (!this.renderable.isCurrentAnimation("attack")) {
@@ -120,12 +107,10 @@ game.PlayerEntity = me.Entity.extend({
             this.renderable.setCurrentAnimation("idle");
         }
     },
-    
     loseHealth: function(damage) {
         console.log(this.health);
         this.health = this.health - damage;
     },
-    
     collideHandler: function(response) {
         if (response.b.type === 'EnemyBaseEntity') {
 
@@ -140,7 +125,6 @@ game.PlayerEntity = me.Entity.extend({
             this.collideWithEnemyCreep(response);
         }
     },
-    
     collideWithEnemyBase: function(response) {
         var ydif = this.pos.y - response.b.pos.y;
         var xdif = this.pos.x - response.b.pos.x;
@@ -156,7 +140,6 @@ game.PlayerEntity = me.Entity.extend({
             this.pos.x = this.pos.x + 1;
         }
     },
-    
     collideWithEnemyCreep: function(response) {
         var xdif = this.pos.x - response.b.pos.x;
         var ydif = this.pos.y - response.b.pos.y;
@@ -168,7 +151,6 @@ game.PlayerEntity = me.Entity.extend({
         }
         ;
     },
-    
     stopMovement: function(xdif) {
         if (xdif > 0) {
             this.pos.x = this.pos.x + 1;
@@ -182,7 +164,6 @@ game.PlayerEntity = me.Entity.extend({
             this.pos.x = this.pos.x - 1;
         }
     },
-    
     checkAttack: function(xdif, ydif) {
         if (this.renderable.isCurrentAnimation("attack") && this.now - this.lastHit >= game.data.playerAttackTimer
                 && (Math.abs(ydif) <= 40) &&
@@ -193,14 +174,13 @@ game.PlayerEntity = me.Entity.extend({
         }
         return false;
     },
-    
     hitCreep: function(response) {
         if (response.b.health <= game.data.playerAttack) {
             game.data.gold += 1;
         }
         response.b.loseHealth(game.data.playerAttack);
     }
-    
+
 });
 
 

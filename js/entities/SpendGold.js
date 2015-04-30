@@ -40,7 +40,6 @@ game.SpendGold = Object.extend({
         me.input.bindKey(me.input.KEY.F6, "F6", true);
         this.setBuyText();
     },
-    
     setBuyText: function() {
         game.data.buytext = new (me.Renderable.extend({
             init: function() {
